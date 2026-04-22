@@ -186,7 +186,7 @@
 <!-- STEP 0: CÓDIGO -->
 <div class="card step active" id="step0">
   <h2 style="font-size:1.1rem;color:var(--azul);margin-bottom:14px">🔑 Entre com seu código</h2>
-  <input type="text" class="input-code" id="inputCodigo" placeholder="EX: COPA001"
+  <input type="text" class="input-code" id="inputCodigo" placeholder="EX: COPA-XXXX"
     maxlength="10" oninput="this.value=this.value.toUpperCase()">
   <div id="erroCodigo" style="margin-top:10px"></div>
   <button class="btn btn-primary" onclick="entrar()" id="btnEntrar" style="margin-top:14px">
@@ -582,3 +582,14 @@ document.getElementById('inputCodigo').addEventListener('keydown', e => {
       const data = await api({acao:'validar', codigo: salvo});
       if (data.ok) {
         usuario = {codigo: data.codigo, nome: data.nome};
+        irParaStep1();
+      }
+    }
+  } catch(e) {
+    // silencioso
+  }
+})();
+</script>
+
+</body>
+</html>
