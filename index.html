@@ -563,4 +563,22 @@ function erro(id, msg) {
   document.getElementById(id).innerHTML = `<div class="erro">${msg}</div>`;
 }
 function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// =============================================
+// INIT
+// =============================================
+document.getElementById('inputCodigo').addEventListener('keydown', e => {
+  if (e.key === 'Enter') entrar();
+});
+
+// Autologin se já entrou antes
+(async function init() {
+  carregarPremiacao();
+  try {
+    const salvo = localStorage.getItem('bolaoCodigo');
+    if (salvo) {
+      const data = await api({acao:'validar', codigo: salvo});
+      if (data.ok) {
+        usuario = {codigo: data.codigo, nome: data.nome};
