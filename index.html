@@ -158,7 +158,10 @@
   <!-- Card de premiação (visível SEMPRE) -->
   <div class="premio-card" id="premioCard">
     <h3>💰 PREMIAÇÃO</h3>
-    <div class="premio-total" id="premioTotal">Carregando…</div>
+    <div style="font-size:.85rem;margin-bottom:4px;opacity:.9;">
+      <div style="margin-bottom:2px;"><strong id="premioTotal">Carregando…</strong></div>
+      <div id="premioBreakdown" style="font-size:.75rem;opacity:.7;"></div>
+    </div>
     <div class="premio-dist">
       <div class="premio-slot">
         <div class="pct">🥇 70%</div>
@@ -297,6 +300,12 @@ async function carregarPremiacao() {
     document.getElementById('premio1').textContent = fmt(data.premio_1);
     document.getElementById('premio2').textContent = fmt(data.premio_2);
     document.getElementById('premio3').textContent = fmt(data.premio_3);
+    if (data.taxa_organizacao > 0) {
+      const taxaValor = Math.round(data.premio_total * data.taxa_organizacao / 100 * 100) / 100;
+      const breakdown =
+        `(${data.taxa_organizacao}% organização: ${fmt(taxaValor)} | A distribuir: ${fmt(data.premio_dividir)})`;
+      document.getElementById('premioBreakdown').textContent = breakdown;
+    }
     if (data.n_participantes > 0 && data.valor_por_pessoa > 0) {
       document.getElementById('premioInfo').textContent =
         `${data.n_participantes} participantes × R$ ${data.valor_por_pessoa}`;
@@ -554,22 +563,4 @@ function erro(id, msg) {
   document.getElementById(id).innerHTML = `<div class="erro">${msg}</div>`;
 }
 function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-
-// =============================================
-// INIT
-// =============================================
-document.getElementById('inputCodigo').addEventListener('keydown', e => {
-  if (e.key === 'Enter') entrar();
-});
-
-// Autologin se já entrou antes
-(async function init() {
-  carregarPremiacao();
-  try {
-    const salvo = localStorage.getItem('bolaoCodigo');
-    if (salvo) {
-      const data = await api({acao:'validar', codigo: salvo});
-      if (data.ok) {
-        usuario = {codigo: data.codigo, nome: data.nome};
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]
