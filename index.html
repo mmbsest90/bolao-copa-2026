@@ -573,11 +573,3 @@ document.getElementById('inputCodigo').addEventListener('keydown', e => {
       const data = await api({acao:'validar', codigo: salvo});
       if (data.ok) {
         usuario = {codigo: data.codigo, nome: data.nome};
-        irParaStep1();
-      }
-    }
-  } catch(e){}
-})();
-</script>
-</body>
-</html>
