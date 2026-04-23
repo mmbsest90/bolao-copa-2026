@@ -392,8 +392,7 @@ async function carregarJogos() {
     if (jogosCache.length === 0) {
       el.innerHTML = `
         <div class="alerta">
-          Nenhum jogo com palpite aberto no momento.<br>
-          Jogos aparecem aqui até <strong>2 horas antes</strong> do apito inicial.
+          Nenhum jogo disponível no momento.
         </div>`;
       return;
     }
@@ -416,8 +415,15 @@ function renderJogo(j) {
   const diffH = (kick - agora) / 3600000;
   const prazo = new Date(kick.getTime() - 2*3600000);
   const horasAteprazo = (prazo - agora) / 3600000;
+
+  // Verifica se o jogo está bloqueado (faltam ≤2h)
+  const estaFechado = horasAteprazo <= 0;
+
   let prazoText, prazoClass = 'prazo-info';
-  if (horasAteprazo < 3 && horasAteprazo > 0) {
+  if (estaFechado) {
+    prazoText = '🔒 Palpites fechados';
+    prazoClass = 'prazo-atencao';
+  } else if (horasAteprazo < 3 && horasAteprazo > 0) {
     prazoText = `⏰ Palpite fecha em ${Math.floor(horasAteprazo)}h ${Math.floor((horasAteprazo%1)*60)}min`;
     prazoClass += ' prazo-atencao';
   } else if (horasAteprazo > 24) {
@@ -425,6 +431,10 @@ function renderJogo(j) {
   } else {
     prazoText = `Palpite fecha ${formatarPrazo(prazo)}`;
   }
+
+  const inputDisabled = estaFechado ? 'disabled' : '';
+  const buttonDisabled = estaFechado ? 'disabled' : '';
+  const buttonStyle = estaFechado ? 'opacity: 0.5; cursor: not-allowed;' : '';
 
   return `
     <div class="${cls}" id="jogo-${j.id}">
@@ -438,11 +448,11 @@ function renderJogo(j) {
         <div class="time time-dir">${escapeHtml(j.time2)}</div>
       </div>
       <div class="score-row">
-        <input type="number" class="score-input" id="p1_${j.id}" value="${p1}" min="0" max="20" inputmode="numeric">
+        <input type="number" class="score-input" id="p1_${j.id}" value="${p1}" min="0" max="20" inputmode="numeric" ${inputDisabled}>
         <span class="score-x">×</span>
-        <input type="number" class="score-input" id="p2_${j.id}" value="${p2}" min="0" max="20" inputmode="numeric">
+        <input type="number" class="score-input" id="p2_${j.id}" value="${p2}" min="0" max="20" inputmode="numeric" ${inputDisabled}>
       </div>
-      <button class="btn btn-primary btn-palpitar" onclick="enviarPalpite('${j.id}')">
+      <button class="btn btn-primary btn-palpitar" onclick="${estaFechado ? 'return false' : `enviarPalpite('${j.id}')`}" ${buttonDisabled} style="${buttonStyle}">
         ${jaPalpitado ? '💾 Atualizar palpite' : '🎯 Enviar palpite'}
       </button>
       <div class="${prazoClass}">${prazoText}</div>
